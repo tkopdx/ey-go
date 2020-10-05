@@ -2,14 +2,22 @@
   "name": "ey-go",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8081/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "^0.20.0",
+    "bootstrap": "^4.5.2",
+    "bootstrap-vue": "^2.16.0",
+    "common": "^0.2.5",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "firebase": "^7.22.0",
+    "uniqid": "^5.2.0",
+    "vue": "^2.6.12",
+    "vuedraggable": "^2.24.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -38,5 +46,15 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "description": "## Project setup ``` npm install ```",
+  "main": "babel.config.js",
+  "keywords": [
+    "slideshow",
+    "language",
+    "English",
+    "Japanese"
+  ],
+  "author": "Colin Takeo",
+  "license": "ISC"
 }

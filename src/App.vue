@@ -1,17 +1,290 @@
+
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Navbar 
+      v-bind:user="user"
+      :loading="loading"
+      v-on:show-set-editor="showSetEditor($event)"
+      v-on:show-slideshow="showSlideshow($event)"
+    />
+    <SetEditor
+      v-if="editing"
+      v-on:save="saveSet($event)"
+      v-on:show-slideshow="showSlideshow($event)"
+      :set="setInEditor"
+      :key="setInEditor.id"
+      v-bind:loading="loading.sets"
+    />
+    <Slideshow
+      v-else
+      :set="slideshowSet"
+      :key="`${slideshowSet.id}-app`"
+      v-bind:loading="loading.sets"
+    />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Navbar from './components/Navbar.vue';
+import SetEditor from './components/SetEditor.vue';
+import Slideshow from './components/Slideshow';
+import uniqid from 'uniqid';
+import axios from 'axios';
+import { EventBus } from './event-bus';
+
+//Firebase initialization
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth'
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAyj3CZVQl43FpoILDFf-qYvWUaA4LjKLM",
+  authDomain: "ey-go-fc9b1.firebaseapp.com",
+  databaseURL: "https://ey-go-fc9b1.firebaseio.com",
+  projectId: "ey-go-fc9b1",
+  storageBucket: "ey-go-fc9b1.appspot.com",
+  messagingSenderId: "984335291769",
+  appId: "1:984335291769:web:13751c903ca1046ded0ba8"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+var db = firebase.firestore();
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Navbar,
+    SetEditor,
+    Slideshow
+  },
+  data: function () {
+    return {
+      editing: true,
+      loading: {
+        login: false,
+        create: false,
+        sets: false,
+      },
+      setInEditor: {
+            name: '',
+            textbook: '',
+            program: '',
+            lesson: '',
+            timestamp: '',
+            id: uniqid(),
+            isEditCopy: false,
+            slides: [{
+              input: '',
+              answer: '',
+              items: []
+            }],
+      },
+      slideshowSet:{},
+      user: {}
+    }
+  },
+  created() {
+    EventBus.$on('login', formData => {
+      // console.log('called via global login')
+      this.login(formData.username, formData.pass);
+    })
+    EventBus.$on('create', formData => {
+      // console.log('called create via global bus');
+      this.createFirebaseAccount(formData.username, formData.pass);
+    })
+  },
+  methods: {
+    login: async function (username, pass) {
+      this.loading.login = true;
+
+      const email = `${username}@${username}.${username}`
+
+      try {
+        const res = await firebase.auth().signInWithEmailAndPassword(email, pass);
+
+        const uid = res.user.uid;
+
+        this.listenToFirebaseSets(uid);
+
+        this.user = {
+          username: username,
+          uid: uid,
+          sets: []
+        }
+        this.loading.login = false;
+      } catch (err) {
+        // console.log(err);
+      }
+
+    },
+    createFirebaseAccount: async function (desiredName, pass) {
+
+      this.loading.create = true;
+      
+      const email = `${desiredName}@${desiredName}.${desiredName}`
+      
+      try {
+        const res = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+
+        const uid = res.user.uid;
+
+        const userObj = {
+          username: desiredName,
+          uid: uid,
+          sets: []
+        }
+
+        db.collection(uid).doc('Your first set!').set({
+            name: 'Your first set!',
+            textbook: '',
+            program: '',
+            lesson: '',
+            timestamp: '',
+            id: uniqid(),
+            isEditCopy: false,
+            slides: [{
+              input: 'Type/questions/like/this.',
+              answer: '',
+              items: []
+            }],
+        });
+
+        this.listenToFirebaseSets(uid);
+
+        this.loading.create = false;
+        this.user = {...userObj};
+      } catch (err) {
+        // console.log(err)
+      }
+    },
+    showSetEditor: function (set) {
+      if (set) {
+        const editCopy = {...set};
+        
+        editCopy.isEditCopy = true;
+
+        this.setInEditor = {...editCopy};
+      } else {
+        this.setInEditor = {
+            name: '',
+            textbook: '',
+            program: '',
+            lesson: '',
+            timestamp: '',
+            id: uniqid(),
+            isEditCopy: false,
+            slides: [{
+              input: '',
+              answer: '',
+              items: []
+            }],
+        }
+      }
+      
+      this.editing = true;
+    },
+    showSlideshow: function (set) {
+      // console.log('setting to slideshow display');
+      this.slideshowSet = set;
+      this.editing = false;
+    },
+    saveSet: async function (next) {
+
+      this.loading.sets = true;
+
+      // let ind;
+
+      // if (this.setInEditor.isEditCopy) {
+      //   ind = this.user.sets.findIndex(set => {
+      //     return set.id === this.setInEditor.id;
+      //   });
+
+      // //   // const setsArr = [...this.user.sets]
+      // //   // const objCopy = {...this.setInEditor}
+
+      // //   // setsArr[ind] = {...objCopy}
+
+      // //   await this.fetchTranslations(ind);
+      // } else {
+
+      //   ind = this.user.sets.length;
+
+      //   console.log(this.user.sets);
+
+      //   console.log(ind);
+
+      //   // this.user.sets.push(this.setInEditor);
+      // //   await this.fetchTranslations(ind);
+      // }
+
+      await this.fetchTranslations();
+
+      //update Firebase sets
+      const userRef = db.collection(this.user.uid).doc(this.setInEditor.name)
+
+      const setToSave = {...this.setInEditor};
+        
+      await userRef.set(setToSave);
+
+      this.loading.sets = false;
+
+      //show success message
+      // console.log('success', res);
+
+
+      if (next === 'slideshow') {
+        const newSlideshowSet = {...this.setInEditor};
+        // console.log(next);
+        this.showSlideshow(newSlideshowSet);
+      } else {
+        return;
+      }
+    },
+    listenToFirebaseSets(uid) {
+      const userRef = db.collection(uid);
+
+      userRef.onSnapshot( (collection) => {
+        this.loading.sets = true;
+
+          // console.log('Your data: ', collection.docs);
+
+          const setsArr = [];
+
+          collection.docs.forEach(doc => {
+            setsArr.push(doc.data());
+            // console.log('doc: ', doc.data());
+          });
+
+          this.user.sets = [...setsArr];
+
+          this.loading.sets = false;
+        })
+    },
+    async fetchTranslations() {
+
+      await Promise.all(this.setInEditor.slides.map (async (slide) => {
+        await Promise.all(slide.items.map(async (item) => {
+          let text = item.text;
+
+          console.log("making req for this text:", text);
+
+          try {
+            let res = await axios.post('translation', {text: text})
+
+            const translations = [...res.data.translations];
+
+            item.translations = [...translations.slice(0, 5)];
+
+            console.log(`${text} translations array set to`, translations);
+
+          } catch (err) {
+            console.log(err);
+          }
+        }));
+      }))
+    },
   }
 }
 </script>
@@ -23,6 +296,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
