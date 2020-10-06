@@ -30,6 +30,7 @@ import SetEditor from './components/SetEditor.vue';
 import Slideshow from './components/Slideshow';
 import uniqid from 'uniqid';
 import axios from 'axios';
+// import JishoAPI from 'unofficial-jisho-api';
 import { EventBus } from './event-bus';
 
 //Firebase initialization
@@ -51,6 +52,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 var db = firebase.firestore();
+
+//Jisho.org Client
+// const jisho = new JishoAPI();
 
 export default {
   name: 'App',
@@ -264,20 +268,36 @@ export default {
     },
     async fetchTranslations() {
 
+      function hasNumber(myString) {
+        return /\d/.test(myString);
+      }
+
       await Promise.all(this.setInEditor.slides.map (async (slide) => {
         await Promise.all(slide.items.map(async (item) => {
-          let text = item.text;
-
+          let text = item.text.replace('?', '').replace(',', '').replace('.', '').replace(';', '').replace(':', '').replace('/', '').toLowerCase();
           console.log("making req for this text:", text);
 
           try {
-            let res = await axios.post('translation', {text: text})
+            let response = await axios.post(`https://boiling-harbor-07938.herokuapp.com/jisho.org/api/v1/search/words?keyword=${text}`);
 
-            const translations = [...res.data.translations];
+            const translationsArr = [];
 
-            item.translations = [...translations.slice(0, 5)];
+            console.log(response);
 
-            console.log(`${text} translations array set to`, translations);
+            response.data.data.forEach(translation => {
+              if (hasNumber(translation.slug)) {
+                translation.slug = 'Error. Sorry!';
+              }
+
+              translationsArr.push({original: text, text: translation.slug});
+              console.log(`${text} in Japanese is: `, translation.slug)
+            });
+
+            // const translations = [...res.data.translations];
+
+            item.translations = [...translationsArr.slice(0, 5)];
+
+            console.log(`${text} translations array set to`, item.translations);
 
           } catch (err) {
             console.log(err);

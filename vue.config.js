@@ -1,5 +1,5 @@
 module.exports = {
     devServer: {
-        proxy: 'http://localhost:8081'
+        proxy: 'https://boiling-harbor-07938.herokuapp.com/'
     }
 }
