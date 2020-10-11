@@ -73,7 +73,13 @@ export default {
                     return;
                 }
 
-                const shuffledItems = this.shuffle([...this.curSlide.items]);
+                let shuffledItems;
+                
+                do {
+                   shuffledItems = this.shuffle([...this.curSlide.items]);
+                } while (this.curSlide.items.every((item, ind) => {
+                    return item.text === shuffledItems[ind].text;
+                }))
 
                 return shuffledItems;
             }

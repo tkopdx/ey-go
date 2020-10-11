@@ -88,7 +88,7 @@
         <div class="button-panel" v-if="loading">
             <b-spinner label="Spinning" variant="success" v-if="loading"></b-spinner>
         </div>
-        <b-button-group v-else class="button-panel">
+        <b-button-group v-else class="button-panel" vertical>
             <b-button variant="primary" :disabled="state.btn" v-on:click="$emit('save', 'slideshow')">Save and start</b-button>
             <b-button variant="secondary" :disabled="state.btn" v-on:click="$emit('save', null)">Save</b-button>
         </b-button-group>
@@ -106,6 +106,23 @@ export default {
     props: {
         set: Object,
         loading: Boolean
+    },
+    mounted() {
+        // window.onscroll = function() {sticky()};
+
+        // const btns = document.querySelector('.button-panel');
+
+        // const btnsOffset = btns.offsetTop;
+
+        // function sticky() {
+        //     console.log("page offset: ", window.pageYOffset, "btnsOffset: ", btnsOffset);
+
+        //     if (window.pageYOffset > btnsOffset) {
+        //         btns.classList.add('sticky');
+        //     } else {
+        //         btns.classList.remove('sticky')
+        //     }
+        // }
     },
     data: function () {
         return {
@@ -236,27 +253,28 @@ export default {
 
 <style scoped>
     .set-editor {
+        position: relative;
         height: auto;
-        width: 90vw;
+        width: 90%;
         margin: auto;
     }
     .slides-box {
         border: 1px solid black;
         padding: 15px;
-        width: 85%;
-        margin: 10px auto 15px 0;
+        width: 80vw;
+        margin: 10px auto 30px 0;
     }
     .add-slide-btn {
         margin: 10px auto auto auto;
     }
     .button-panel {
-        display: flex;
         position: fixed;
-        bottom: 3%;
-        right: 5%;
-        margin: 5px;
+        bottom: 2%;
+        right: 2%;
+        display: flex;
+        margin: 5px auto;
         background: white;
-        width: 10vw;
+        width: auto;
         height: auto;
         justify-content: space-evenly;
     }

@@ -2,10 +2,10 @@
     <b-dropdown :user="user" :text="userMsg" right>
         <b-list-group v-if="user.username">
             <b-list-group-item>
-                <b-button>Change password</b-button>
+                <b-button disabled>Change password</b-button>
             </b-list-group-item>
             <b-list-group-item>
-                <b-button>Logout</b-button>
+                <b-button v-on:click="emitLogoutGlobalEvent">Logout</b-button>
             </b-list-group-item>
         </b-list-group>
         
@@ -31,6 +31,7 @@
 <script>
 import LoginForm from './LoginForm';
 import CreateAccountForm from './CreateAccountForm';
+import { EventBus } from '../event-bus';
 
 export default {
     name:'UserMenu',
@@ -43,7 +44,12 @@ export default {
     },
     computed: {
         userMsg() {
-            return this.user.username ? this.user.username : 'Please login or create an account.'
+            return this.user.username ? this.user.username : 'Login here!'
+        }
+    },
+    methods: {
+        emitLogoutGlobalEvent: function () {
+            EventBus.$emit('logout');
         }
     }
 }

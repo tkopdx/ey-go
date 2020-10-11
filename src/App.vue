@@ -90,6 +90,8 @@ export default {
     }
   },
   created() {
+    this.loading.login = true;
+
     EventBus.$on('login', formData => {
       // console.log('called via global login')
       this.login(formData.username, formData.pass);
@@ -98,8 +100,47 @@ export default {
       // console.log('called create via global bus');
       this.createFirebaseAccount(formData.username, formData.pass);
     })
+    EventBus.$on('logout', () => {
+      this.logout();
+    })
+
+    this.checkLoginStatus();
   },
   methods: {
+    checkLoginStatus: async function () {
+      
+      try {
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            // User is signed in.
+            const user = firebase.auth().currentUser;
+            const splitUsername = user.email.split('@')
+            const username = splitUsername[0];
+            const uid = user.uid;
+
+            this.user = {
+              username: username,
+              uid: uid,
+              unsubscribe: null,
+            }
+
+            this.listenToFirebaseSets(uid);
+            this.loading.login = false;
+          } else {
+            // No user is signed in.
+            this.user = {
+              sets: []
+            }
+            this.loading.login = false;
+            return;
+          }
+        });
+
+      } catch (err){
+        console.log(err);
+      }
+      
+    },
     login: async function (username, pass) {
       this.loading.login = true;
 
@@ -115,7 +156,8 @@ export default {
         this.user = {
           username: username,
           uid: uid,
-          sets: []
+          sets: [],
+          unsubscribe: null
         }
         this.loading.login = false;
       } catch (err) {
@@ -137,7 +179,8 @@ export default {
         const userObj = {
           username: desiredName,
           uid: uid,
-          sets: []
+          sets: [],
+          unsubscribe: null
         }
 
         db.collection(uid).doc('Your first set!').set({
@@ -161,6 +204,16 @@ export default {
         this.user = {...userObj};
       } catch (err) {
         // console.log(err)
+      }
+    },
+    logout: async function () {
+      try {
+        await this.user.unsubscribe();
+        console.log('unsubscribed');
+        await firebase.auth().signOut();
+        console.log('logged out');
+      } catch (err) {
+        console.log(err);
       }
     },
     showSetEditor: function (set) {
@@ -246,10 +299,11 @@ export default {
         return;
       }
     },
-    listenToFirebaseSets(uid) {
+    listenToFirebaseSets: function (uid) {
       const userRef = db.collection(uid);
 
-      userRef.onSnapshot( (collection) => {
+      try {
+        const unsubscribe = userRef.onSnapshot( (collection) => {
         this.loading.sets = true;
 
           // console.log('Your data: ', collection.docs);
@@ -262,9 +316,14 @@ export default {
           });
 
           this.user.sets = [...setsArr];
-
+          this.user.unsubscribe = unsubscribe;
           this.loading.sets = false;
         })
+      } catch (err) {
+        console.log(err);
+      }
+
+      
     },
     async fetchTranslations() {
 
