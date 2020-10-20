@@ -39,13 +39,13 @@ import 'firebase/firestore';
 import 'firebase/auth'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAyj3CZVQl43FpoILDFf-qYvWUaA4LjKLM",
-  authDomain: "ey-go-fc9b1.firebaseapp.com",
-  databaseURL: "https://ey-go-fc9b1.firebaseio.com",
-  projectId: "ey-go-fc9b1",
-  storageBucket: "ey-go-fc9b1.appspot.com",
-  messagingSenderId: "984335291769",
-  appId: "1:984335291769:web:13751c903ca1046ded0ba8"
+  apiKey: "AIzaSyDqjXSIdtzDO9UCk-sC5ziMG2s5YPgpC_U",
+    authDomain: "ey-go-d3cd0.firebaseapp.com",
+    databaseURL: "https://ey-go-d3cd0.firebaseio.com",
+    projectId: "ey-go-d3cd0",
+    storageBucket: "ey-go-d3cd0.appspot.com",
+    messagingSenderId: "749591697074",
+    appId: "1:749591697074:web:6cfaf7544368aee5e05bab"
 };
 
 // Initialize Firebase
