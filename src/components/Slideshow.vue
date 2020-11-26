@@ -74,9 +74,7 @@ export default {
                 
                 do {
                    shuffledItems = this.shuffle([...this.curSlide.items]);
-                } while (this.curSlide.items.every((item, ind) => {
-                    return item.text === shuffledItems[ind].text;
-                }))
+                } while (this.duplicate(shuffledItems, this.curSlide.items))
 
                 return shuffledItems;
             }
@@ -116,6 +114,16 @@ export default {
             }
 
             return array;
+        },
+        duplicate: function (shuffledArr, arr) {
+
+            const resArr = [];
+            
+            shuffledArr.map( (item, index) => {
+                return item.text === arr[index].text ? resArr.push(true) : resArr.push(false)
+            })
+                
+            return resArr.includes(true) ? true : false
         }
     },    
 }
