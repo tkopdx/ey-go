@@ -86,7 +86,9 @@ export default {
             }],
       },
       slideshowSet:{},
-      user: {}
+      user: {
+        sets: null
+      }
     }
   },
   created() {
@@ -193,8 +195,13 @@ export default {
             isEditCopy: false,
             slides: [{
               input: 'Type/questions/like/this.',
-              answer: '',
-              items: []
+              answer: 'Type questions like this',
+              items: [
+                {id: `${0}-${1}-${'Type'}`, text: 'Type'},
+                {id: `${0}-${2}-${'questions'}`, text: 'questions'},
+                {id: `${0}-${3}-${'like'}`, text: 'like'},
+                {id: `${0}-${4}-${'this.'}`, text: 'this.'},
+              ]
             }],
         });
 

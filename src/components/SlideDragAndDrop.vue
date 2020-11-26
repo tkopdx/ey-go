@@ -1,10 +1,11 @@
 <template>
     <div class="slide-drag-and-drop">
-        <p class="slide-drag-and-drop-feedback" v-bind:class="{green: checkAnswer}">{{checkAnswer ? 'Nice!' : 'Put the words/phrases in the correct order.'}}</p>
+        <Canvas/>
         <p class="slide-drag-and-drop-feedback-icon">
             <ion-icon name="happy-outline" class="green" v-if="checkAnswer" key="happy-feedback"></ion-icon>
             <ion-icon name="close-outline" class="red-font" v-else key="bad-feedback"></ion-icon>
         </p>
+        <p class="slide-drag-and-drop-feedback" v-bind:class="{green: checkAnswer}">{{checkAnswer ? 'Nice!' : 'Put the words/phrases in the correct order.'}}</p>
         <draggable v-bind="localList" key="draggable-list" class="drag-and-drop-list" :list="localList" group="words">
             <transition-group name="shuffle-list" tag="div" class="shuffle-list">
                 <div class="list-group-item" v-for="item in localList" :key="item.id" :id="`list-group-item-${item.id}`">{{item.text}}</div>
@@ -21,12 +22,14 @@
 <script>
 import draggable from 'vuedraggable';
 import TranslationPopover from './TranslationPopover';
+import Canvas from './Canvas';
 
 export default {
     name: 'SlideDragAndDrop',
     components: {
         draggable,
-        TranslationPopover
+        TranslationPopover,
+        Canvas
     },
     props: {
         randItems: Array,
@@ -60,23 +63,24 @@ export default {
 <style scoped>
     .slide-drag-and-drop {
         width: 95vw;
-        height: 70%;
+        height: 90%;
         display: flex;
         flex-direction: column;
+        position: relative;
     }
     .slide-drag-and-drop-feedback {
-        font-size: 30px;
+        font-size: 18px;
         width: auto;
         height: auto;
-        margin-top: 5%;
     }
     .slide-drag-and-drop-feedback-icon {
-        font-size: 40px;
+        font-size: 30px;
+        margin-top: 3%;
     }
     .drag-and-drop-list {
         width: auto;
         height: auto;
-        max-height: 65%;
+        max-height: 80%;
         margin: auto;
         align-self: center;
         align-items: center;

@@ -1,6 +1,6 @@
 <template>
     <div class="canvas-box">
-        <canvas @mousemove="draw" @mousedown="beginDrawing" @mouseup="endDrawing" id="myCanvas"></canvas>
+        <canvas v-touch:moving="draw" v-touch:start="beginDrawing" v-touch:end="endDrawing" id="myCanvas"></canvas>
         <CanvasConfig
             :config="this.config"
             v-on:pen-click="togglePen"
@@ -12,6 +12,10 @@
 
 <script>
 import CanvasConfig from './CanvasConfig';
+import Vue from 'vue';
+import Vue2TouchEvents from 'vue2-touch-events';
+ 
+Vue.use(Vue2TouchEvents);
 
 export default {
     name: 'Canvas',
@@ -40,13 +44,15 @@ export default {
     },
     mounted() {
         this.canvas = document.getElementById("myCanvas");
-        this.canvas.height = window.innerHeight * .8;
-        this.canvas.width = window.innerWidth * .9;
+        this.canvas.height = window.innerHeight * .95;
+        this.canvas.width = window.innerWidth * .95;
         this.ctx = this.canvas.getContext("2d");  
         this.vueCanvas = this.ctx;
     },
     methods: {
         beginDrawing(e) {
+            console.log('gonna draw')
+
             if (!this.config.selected) {
                 return;
             }
@@ -54,6 +60,9 @@ export default {
             this.draw(e);
         },
         endDrawing() {
+            console.log('ending draw')
+
+            
             this.drawing = false;
             this.ctx.beginPath();
         },
@@ -61,7 +70,7 @@ export default {
             if (!this.drawing) {
                 return;
             } else {
-                // console.log("x:", e.offsetX, "y:", e.offsetY)
+                console.log("x:", e.offsetX, "y:", e.offsetY)
 
                 this.ctx.lineWidth = 10;
                 this.ctx.lineCap = "round";
@@ -111,9 +120,8 @@ export default {
     }
     #myCanvas {
         position: absolute;
-        top: 10vh;
-        left: 5vw;
+        top: 0;
+        left: 0;
         margin: auto;
-        max-width: 90vw;
     }
 </style>

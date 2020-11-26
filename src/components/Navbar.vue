@@ -1,7 +1,7 @@
 <template>
 <div>
   <b-navbar type="dark" variant="info">
-    <b-navbar-brand href="#">Ey! Go!</b-navbar-brand>
+    <b-navbar-brand href="#">ey-go</b-navbar-brand>
     <b-navbar-nav>
         <b-nav-item v-on:click="$emit('show-set-editor', null)" href="#">+ set</b-nav-item>
     </b-navbar-nav>

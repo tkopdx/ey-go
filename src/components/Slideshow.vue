@@ -1,7 +1,6 @@
 <template>
     <div v-if="!loading" class="slideshow">
-        <Canvas/>
-        <h5>{{ set.name }}</h5>
+        <p>{{ set.name }}</p>
         <SlideDragAndDrop
             :randItems="this.randomizedItems"
             :answerItems="this.curSlide.items"
@@ -19,13 +18,11 @@
 
 <script>
 import SlideDragAndDrop from './SlideDragAndDrop';
-import Canvas from './Canvas';
 
 export default { 
     name: 'Slideshow',
     components: {
         SlideDragAndDrop,
-        Canvas
     },
     props: {
         set: Object,
@@ -127,20 +124,22 @@ export default {
 <style scoped>
     .slideshow {
         display:flex;
+        flex-direction: column;
         position: relative;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
-        height: 90vh;
-        width: 100vw;
+        height: 97vh;
+        width: auto;
+        margin: auto;
     }
-    h5 {
+    p {
         position: absolute;
-        top: 50px;
-        left: 50px;
+        top: 5px;
+        left: 5px;
     }
     .button-panel {
         position: absolute;
-        bottom: 50px;
+        bottom: 10px;
         display: flex;
         justify-content: space-evenly;
         width: 80vw;

@@ -22,9 +22,18 @@ export default {
 <style scoped>
     .canvas-config-box {
         position: absolute;
-        bottom: 7%;
-        right: 5%;
+        bottom: 2%;
+        right: 2%;
         z-index: 2;
+        display: flex;
+        flex-direction: column;
+        opacity: 0.3;
+        transition: opacity, .2s;
+    }
+    .canvas-config-box:hover,
+    .canvas-config-box:active,
+    .canvas-config-box:focus {
+        opacity: 1;
     }
     .pen-button {
         position: relative;
@@ -34,7 +43,7 @@ export default {
         padding: 0;
         background: white;
         box-shadow: 0 0 5px 2px rgb(192, 192, 192);
-        margin: auto 20px;
+        margin: 5px auto;
     }
     .pen-button ion-icon {
         font-size: 30px;
